@@ -58,7 +58,7 @@ def get_current_domain(r):
 
 
 def get_reverse(objs):
-    """In order to support different django version, I have to do this """
+    """In order to support different django version, I have to do this"""
     if parse_version(get_version()) >= parse_version("2.0"):
         from django.urls import reverse
     else:
@@ -170,8 +170,9 @@ def acs(r):
     saml_client = _get_saml_client(get_current_domain(r))
     resp = r.POST.get("SAMLResponse", None)
     next_url = r.session.get("login_next_url", _default_next_url())
-    next_url = r.POST.get("RelayState", next_url)
-
+    relay_state = r.POST.get("RelayState")
+    if relay_state:
+        next_url = relay_state
     if not resp:
         return HttpResponseRedirect(
             get_reverse([denied, "denied", "django_saml2_auth:denied"])
